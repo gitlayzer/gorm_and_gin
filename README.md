@@ -1616,7 +1616,24 @@ func (*Project) TableName() string {
 }
 ```
 
-#### 8.4：dao/db_init.go (new)
+#### 8.4：config/mysql.go
+
+```go
+package config
+
+var (
+	DbUser = "root"
+	DbPass = "123456"
+	DbHost = "10.0.0.11"
+	DbPort = "3306"
+	DbName = "gorm_and_gin"
+	DbLang = "utf8"
+	DbTime = "True"
+	DbLoc  = "Local"
+)
+```
+
+#### 8.5：dao/db_init.go (new)
 
 ```go
 package dao
@@ -1625,12 +1642,23 @@ import (
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm_gin_service/config"
 	"gorm_gin_service/model"
 )
 
 func InitMySQL() *gorm.DB {
 
-	conn := "root:123456@tcp(10.0.0.11:3306)/gorm_and_gin?charset=utf8&parseTime=True&loc=Local"
+	// 引用变量并实例化conn
+	var conn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=%s&loc=%s",
+		config.DbUser,
+		config.DbPass,
+		config.DbHost,
+		config.DbPort,
+		config.DbName,
+		config.DbLang,
+		config.DbTime,
+		config.DbLoc,
+	)
 
 	db, err := gorm.Open(mysql.Open(conn), &gorm.Config{})
 	if err != nil {
@@ -1647,7 +1675,7 @@ func InitMySQL() *gorm.DB {
 }
 ```
 
-#### 8.5：controller/user.go
+#### 8.6：controller/user.go
 
 ```go
 package controller
@@ -1726,7 +1754,7 @@ func LoginHandler(c *gin.Context) {
 }
 ```
 
-#### 8.6：controller/project.go
+#### 8.7：controller/project.go
 
 ```go
 package controller
@@ -1865,7 +1893,7 @@ func DeleteProjectHandler(c *gin.Context) {
 }
 ```
 
-#### 8.7：middleware/auth.go
+#### 8.8：middleware/auth.go
 
 ```go
 package middleware
@@ -1895,7 +1923,7 @@ func AuthMiddleware() gin.HandlerFunc {
 }
 ```
 
-#### 8.8：router/test_router.go
+#### 8.9：router/test_router.go
 
 ```go
 package router
@@ -1914,7 +1942,7 @@ func TestHandler(c *gin.Context) {
 }
 ```
 
-#### 8.9：router/setup_router.go
+#### 8.10：router/setup_router.go
 
 ```go
 package router
@@ -1939,7 +1967,7 @@ func SetupApiRouters(r *gin.Engine) {
 }
 ```
 
-#### 8.10：router/init_router.go
+#### 8.11：router/init_router.go
 
 ```go
 package router
@@ -1959,7 +1987,7 @@ func InitRouter() *gin.Engine {
 }
 ```
 
-#### 8.11：main.go
+#### 8.13：main.go
 
 ```go
 package main
@@ -2070,3 +2098,4 @@ DELETE /api/v1/project/<id>
 ```
 
 ![image](https://user-images.githubusercontent.com/77761224/219724534-f41b64e8-52a7-4d10-b495-d44c75e2787a.png)
+
